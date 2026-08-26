@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DevOps Status Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 8px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+        }
+
+        .status {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .online {
+            color: green;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #info {
+            margin-top: 15px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>DevOps Status Dashboard</h1>
+    <p>End-to-End DevOps Demonstration Project</p>
+</header>
+
+<div class="container">
+
+    <div class="card-container">
+
+        <div class="card">
+            <h2>Application Status</h2>
+            <p id="status" class="status">Checking...</p>
+        </div>
+
+        <div class="card">
+            <h2>Application Version</h2>
+            <p>Version 1.0.0</p>
+        </div>
+
+        <div class="card">
+            <h2>Environment</h2>
+            <p id="environment">Checking...</p>
+        </div>
+
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h2>System Information</h2>
+
+        <div id="info">
+            Loading...
+        </div>
+
+        <button onclick="checkHealth()">
+            Check Application
+        </button>
+    </div>
+
+</div>
+
+<script>
+
+async function checkHealth() {
+
+    try {
+
+        const healthResponse = await fetch("/api/health");
+        const healthData = await healthResponse.json();
+
+        document.getElementById("status").textContent =
+            healthData.status;
+
+        document.getElementById("status").className =
+            "status online";
+
+        const infoResponse = await fetch("/api/info");
+        const infoData = await infoResponse.json();
+
+        document.getElementById("environment").textContent =
+            infoData.environment;
+
+        document.getElementById("info").innerHTML = `
+            <p><strong>Node.js:</strong> ${infoData.nodeVersion}</p>
+            <p><strong>Platform:</strong> ${infoData.platform}</p>
+            <p><strong>Application:</strong> ${healthData.application}</p>
+        `;
+
+    } catch (error) {
+
+        document.getElementById("status").textContent =
+            "DOWN";
+
+        document.getElementById("status").className =
+            "status";
+    }
+}
+
+checkHealth();
+
+</script>
+
+</body>
+</html>
