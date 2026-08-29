@@ -1,7 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPO = '443568785245.dkr.ecr.us-east-1.amazonaws.com/devops-project'
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -14,11 +20,21 @@ pipeline {
             }
         }
 
-        stage('Run Container') {
+        stage('Login to ECR') {
             steps {
-                sh 'docker stop devops-app || true'
-                sh 'docker rm devops-app || true'
-                sh 'docker run -d -p 3000:3000 --name devops-app devops-project'
+                sh '''
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login --username AWS --password-stdin $ECR_REPO
+                '''
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                sh '''
+                    docker tag devops-project:latest $ECR_REPO:latest
+                    docker push $ECR_REPO:latest
+                '''
             }
         }
     }
